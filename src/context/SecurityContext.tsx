@@ -165,14 +165,43 @@ const getRandomAttackerDetails = (type: ThreatType) => {
   };
 };
 
-const INITIAL_USERS: User[] = [
-  { id: 'usr_1', name: 'Alex', email: 'alex@gmail.com', phone: '9876543210', location: 'India' },
-  { id: 'usr_2', name: 'Sarah Connor', email: 'sarah@cyberdyne.com', phone: '9123456789', location: 'USA' },
-  { id: 'usr_3', name: 'Bruce Wayne', email: 'bruce@waynecorp.com', phone: '9555123456', location: 'USA' },
-  { id: 'usr_4', name: 'Priya Sharma', email: 'priya@techcorp.in', phone: '9888776655', location: 'India' },
-  { id: 'usr_5', name: 'John Doe', email: 'john.doe@gmail.com', phone: '9000111222', location: 'Canada' },
-  { id: 'usr_6', name: 'Yuki Sato', email: 'yuki@nifty.jp', phone: '9666777888', location: 'Japan' }
-];
+const MOCK_FIRST_NAMES = ['Alex', 'Sarah', 'Bruce', 'Priya', 'John', 'Yuki', 'Michael', 'Emily', 'David', 'Jessica', 'James', 'Aarav', 'Emma', 'Daniel', 'Sophia', 'Olivia', 'Liam', 'Noah', 'Mia', 'Arjun', 'Rohan', 'Neha', 'Kabir', 'Ananya', 'Rahul', 'Tanvi', 'Vikram', 'Divya'];
+const MOCK_LAST_NAMES = ['Connor', 'Wayne', 'Sharma', 'Doe', 'Sato', 'Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Miller', 'Davis', 'Garcia', 'Rodriguez', 'Wilson', 'Martinez', 'Patel', 'Kumar', 'Singh', 'Gupta', 'Joshi', 'Mehta', 'Rao', 'Nair'];
+const MOCK_LOCATIONS = ['India', 'USA', 'Germany', 'Canada', 'Japan', 'Singapore', 'Australia', 'UK', 'France', 'Netherlands'];
+
+const generateMockUsers = (count: number): User[] => {
+  const list: User[] = [];
+  
+  // 1. Maintain core user from step 1
+  list.push({
+    id: 'usr_1',
+    name: 'Alex',
+    email: 'alex@gmail.com',
+    phone: '9876543210',
+    location: 'India'
+  });
+
+  // 2. Generate remaining users programmatically
+  for (let i = 2; i <= count; i++) {
+    const first = MOCK_FIRST_NAMES[Math.floor(Math.random() * MOCK_FIRST_NAMES.length)];
+    const last = MOCK_LAST_NAMES[Math.floor(Math.random() * MOCK_LAST_NAMES.length)];
+    const name = `${first} ${last}`;
+    const email = `${first.toLowerCase()}.${last.toLowerCase()}_${i}@gmail.com`;
+    const phone = Math.floor(6000000000 + Math.random() * 4000000000).toString(); // realistic phone prefix
+    const location = MOCK_LOCATIONS[Math.floor(Math.random() * MOCK_LOCATIONS.length)];
+    
+    list.push({
+      id: `usr_${i}`,
+      name,
+      email,
+      phone,
+      location
+    });
+  }
+  return list;
+};
+
+const INITIAL_USERS: User[] = generateMockUsers(150);
 
 const INITIAL_LOGS: SecurityLog[] = [
   {
