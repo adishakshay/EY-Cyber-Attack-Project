@@ -47,9 +47,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
 
       <div className="sidebar-footer">
         <div className="admin-badge">
-          <div className="admin-avatar">AX</div>
+          <div className="admin-avatar">AA</div>
           <div className="admin-info">
-            <span className="admin-name">Alex</span>
+            <span className="admin-name">Adish A</span>
             <span className="admin-role">SOC Director</span>
           </div>
         </div>
