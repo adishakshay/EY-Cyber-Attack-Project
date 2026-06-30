@@ -1,0 +1,139 @@
+# Implementation Plan: LinkedIn Shield SOC Demo
+
+We will build a high-fidelity, premium mini SOC (Security Operations Center) demo application called **LinkedIn Shield**. It will simulate a LinkedIn environment, run simulated cyber attacks (Data Scraping, Brute Force, and Suspicious APIs), monitor requests in real-time, execute AI threat detection rules, trigger automated response controls, and show a live breach timeline replay.
+
+To ensure maximum visual impact for your presentation, we will build a stunning, fully animated React SPA using **Vanilla CSS** (dark-mode glassmorphic theme) and **Framer Motion** for micro-animations.
+
+---
+
+## Architecture & Simulation flow
+
+```mermaid
+graph TD
+    Attacker[Attack Simulator] -- "Normal vs Attack Traffic" --> LinkedInApp[LinkedIn App Simulator]
+    LinkedInApp -- "API Telemetry" --> Monitor[Security Monitoring Layer]
+    Monitor -- "Rule Engine & AI Confidence" --> Detector[AI Threat Detection]
+    Detector -- "Write Logs" --> DB[(Simulated MongoDB: security_logs)]
+    Detector -- "Trigger Response" --> AutoResponse[Auto Response System]
+    AutoResponse -- "Block IP / Protect DB" --> LinkedInApp
+    Monitor -- "Real-time Metrics" --> ShieldDashboard[LinkedIn Shield Dashboard]
+    ShieldDashboard -- "Display State" --> UI[Incident Response / Breach Timeline UI]
+```
+
+---
+
+## User Review Required
+
+> [!IMPORTANT]
+> **State Management & Simulation Architecture**
+> Instead of a complex, fragile multi-server setup (separate node express backend + React frontend + MongoDB container) which can be slow and error-prone to set up and run on Windows, we will build a **state-driven client-side simulation engine** in React. 
+> 
+> This engine will run in a unified React Context (`SecurityContext`). It will:
+> - Maintain mock databases in React state (simulating the `users` and `security_logs` collections).
+> - Simulate active HTTP request workers running in background timers, generating thousands of API calls per minute during attacks.
+> - Stream telemetry into a simulated "Security Monitoring Layer" that executes the rules engine.
+> - Update the Dashboard and Breach Timeline dynamically in real-time.
+> - This delivers an identical visual result (showing thousands of requests/min, alerts, and automatic blocks) with a **100% reliable, single-command startup (`npm run dev`)** for your presentation.
+
+---
+
+## Proposed Changes
+
+We will create a Vite React TypeScript application in the current directory and implement the following file structure.
+
+### Project Scaffolding
+We will configure Vite and the core dependencies.
+
+#### [NEW] [package.json](file:///c:/Users/ADISH/Documents/VS%20CODE/EY%20mini%20project/package.json)
+Contains core react, vite, typescript dependencies, plus `framer-motion` and `lucide-react` for UI.
+
+#### [NEW] [vite.config.ts](file:///c:/Users/ADISH/Documents/VS%20CODE/EY%20mini%20project/vite.config.ts)
+Vite configurations for React and paths.
+
+#### [NEW] [tsconfig.json](file:///c:/Users/ADISH/Documents/VS%20CODE/EY%20mini%20project/tsconfig.json)
+TypeScript configurations.
+
+---
+
+### Core Design System & Global Styles
+
+#### [NEW] [index.css](file:///c:/Users/ADISH/Documents/VS%20CODE/EY%20mini%20project/src/index.css)
+Global stylesheet containing the premium dark-mode theme, CSS custom properties (color palettes: deep cyber blues, neon reds, cyber greens), and scrollbars.
+
+#### [NEW] [App.css](file:///c:/Users/ADISH/Documents/VS%20CODE/EY%20mini%20project/src/App.css)
+Layout styles and responsive grids for the main dashboard.
+
+---
+
+### Simulation State & Business Logic
+
+#### [NEW] [types/security.ts](file:///c:/Users/ADISH/Documents/VS%20CODE/EY%20mini%20project/src/types/security.ts)
+TypeScript interfaces for Users, SecurityLogs, AttackTypes, Incidents, and TimelineEvents.
+
+#### [NEW] [context/SecurityContext.tsx](file:///c:/Users/ADISH/Documents/VS%20CODE/EY%20mini%20project/src/context/SecurityContext.tsx)
+The central simulation engine. It manages:
+- **Collections**: `users` (mock LinkedIn profiles) and `security_logs`.
+- **System States**: Normal, Attacking, Blocked, Mitigated.
+- **Traffic Telemetry**: Current requests/sec, total hits, normal traffic baseline, attack traffic rate.
+- **Rule Engine**: Evaluates requests in real-time to detect threats (e.g. Data Scraping if request count > 1000/min, Brute Force if failed logins > 5/min, Suspicious APIs if payload contains SQL injections).
+- **Incident Logger**: Records threats into the `security_logs` collection.
+- **Timeline Generator**: Dispatches events to the Breach Timeline (e.g., Detection, AI analysis, Block command, Notification).
+
+---
+
+### Frontend Components
+
+#### [NEW] [components/Login.tsx](file:///c:/Users/ADISH/Documents/VS%20CODE/EY%20mini%20project/src/components/Login.tsx)
+A premium admin login page with LinkedIn styling, a secure shield-glow animation, and credential validation.
+
+#### [NEW] [components/Sidebar.tsx](file:///c:/Users/ADISH/Documents/VS%20CODE/EY%20mini%20project/src/components/Sidebar.tsx)
+Navigation sidebar to switch between dashboard tabs:
+- 🛡️ Shield SOC (Main Dashboard)
+- ⚡ Attack Simulator (Testing Panel)
+- 🗄️ Database Explorer (Users & Logs collections)
+- 📝 Settings & Logs
+
+#### [NEW] [components/NetworkVisualizer.tsx](file:///c:/Users/ADISH/Documents/VS%20CODE/EY%20mini%20project/src/components/NetworkVisualizer.tsx)
+A visual network canvas. Animates client requests flowing to the LinkedIn Application and database.
+- **Normal state**: Soft blue/green dots flowing smoothly.
+- **Attack state**: A rapid red storm of packets representing the high request rate.
+- **Blocked state**: A glowing holographic wall blocks incoming packets, sending a visual shockwave.
+
+#### [NEW] [components/Dashboard.tsx](file:///c:/Users/ADISH/Documents/VS%20CODE/EY%20mini%20project/src/components/Dashboard.tsx)
+The main SOC Dashboard. Includes:
+- **KPI Metrics**: Threats Detected, Risk Score, Active Investigations, Total API Requests.
+- **Threat Alerts Banner**: Red warning alerts when attacks are live.
+- **AI Analysis Terminal**: Console outputting rules engine decisions in real-time ("AI confidence 94%", "Status: Blocked").
+- **Incident Response controls**: Status checklist showing `✔ IP Blocked`, `✔ Database Protected`, `✔ Security Team Notified`, `✔ Users Notified`.
+
+#### [NEW] [components/AttackSimulator.tsx](file:///c:/Users/ADISH/Documents/VS%20CODE/EY%20mini%20project/src/components/AttackSimulator.tsx)
+The simulator panel:
+- Selection buttons: `[Data Scraping Attack]`, `[Brute Force Login]`, `[Suspicious API Requests]`.
+- Start / Stop Attack toggle.
+- Attacker parameters (IP, Location, Target URI, Simulated speed).
+
+#### [NEW] [components/DatabaseViewer.tsx](file:///c:/Users/ADISH/Documents/VS%20CODE/EY%20mini%20project/src/components/DatabaseViewer.tsx)
+Displays the simulated MongoDB collections (`users` and `security_logs`) as live tables/JSON records. Shows users' details (Alex, India, etc.) and lists inserted security logs.
+
+#### [NEW] [components/Timeline.tsx](file:///c:/Users/ADISH/Documents/VS%20CODE/EY%20mini%20project/src/components/Timeline.tsx)
+The Breach Timeline Replay. Renders a vertical line with status indicators and details. Animations will trigger automatically as new security events occur.
+
+---
+
+## Verification Plan
+
+### Automated Checks
+- Run `tsc --noEmit` to verify type safety.
+- Run `npm run build` to verify webpack/vite bundle builds successfully.
+
+### Manual Verification
+We will verify the entire 15-minute presentation flow in the browser using the Browser subagent or manual inspection:
+1. **Login Page**: Inspect layout and validation.
+2. **Normal Dashboard**: Verify Risk Score is 20%, Threats Detected is 0.
+3. **Trigger Attack**:
+   - Go to Simulator, click **Start Data Scraping Attack**.
+   - Check if traffic surges to 5000+ req/min and network visualizer flows red packets.
+4. **Live Alert Popup**: Framer Motion animation showing `⚠ Security Alert` and loading pattern analysis.
+5. **AI Threat Detection**: Verify confidence is 94%, status is Blocked.
+6. **Auto Response**: Check checklist (IP Blocked, DB Protected, Incident Logged) shows checkmarks.
+7. **Breach Timeline Replay**: Confirm events populate chronologically with slide-in effects.

@@ -1,0 +1,13 @@
+# Tasks: LinkedIn Shield SOC
+
+- `[ ]` Scaffold Vite project and configure dependencies
+- `[ ]` Define TypeScript interfaces and central simulation context
+- `[ ]` Design CSS system (Vanilla CSS styles for modern glassmorphic look)
+- `[ ]` Implement Login page component
+- `[ ]` Implement Network visualizer (traffic flow canvas)
+- `[ ]` Implement Sidebar & Layout navigation
+- `[ ]` Implement Security Dashboard component (stats, alerts, AI terminal, incident checklists)
+- `[ ]` Implement Attack Simulator controls
+- `[ ]` Implement Database Viewer (Live MongoDB view)
+- `[ ]` Implement Breach Timeline Replay
+- `[ ]` Verify type safety and verify local dev server works
