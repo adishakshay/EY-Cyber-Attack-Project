@@ -48,89 +48,41 @@ const playThreatAlarm = (type: ThreatType) => {
     const duration = 6.0; // Play alarm for 6 seconds
     const startTime = ctx.currentTime;
     
-    if (type === 'Data Scraping') {
-      // Rapid automated bot crawling chirps (sawtooth frequency sweeps)
-      for (let time = 0; time < duration; time += 0.3) {
-        const osc = ctx.createOscillator();
-        const gainNode = ctx.createGain();
-        
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(500, startTime + time);
-        osc.frequency.exponentialRampToValueAtTime(1400, startTime + time + 0.2);
-        
-        gainNode.gain.setValueAtTime(0.0, startTime + time);
-        gainNode.gain.linearRampToValueAtTime(0.12, startTime + time + 0.05);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + time + 0.25);
-        
-        osc.connect(gainNode);
-        gainNode.connect(ctx.destination);
-        
-        osc.start(startTime + time);
-        osc.stop(startTime + time + 0.25);
-      }
-    } else if (type === 'Brute Force') {
-      // Heavy pounding industrial klaxon siren (triangle wave with volume gating)
+    const playBeep = (timeOffset: number, beepDuration: number, freq: number, waveType: 'sine' | 'square' | 'sawtooth' | 'triangle' = 'sine') => {
       const osc = ctx.createOscillator();
       const gainNode = ctx.createGain();
       
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(240, startTime);
+      osc.type = waveType;
+      osc.frequency.setValueAtTime(freq, startTime + timeOffset);
       
-      // Siren frequency modulation sweep
-      for (let time = 0.4; time < duration; time += 0.4) {
-        const targetFreq = (Math.floor(time * 2.5) % 2 === 0) ? 240 : 480;
-        osc.frequency.linearRampToValueAtTime(targetFreq, startTime + time);
-      }
-      
-      // Hammering/pulsing volume gate
-      gainNode.gain.setValueAtTime(0.0, startTime);
-      for (let time = 0; time < duration; time += 0.4) {
-        gainNode.gain.linearRampToValueAtTime(0.20, startTime + time + 0.05);
-        gainNode.gain.setValueAtTime(0.20, startTime + time + 0.25);
-        gainNode.gain.linearRampToValueAtTime(0.001, startTime + time + 0.35);
-      }
+      gainNode.gain.setValueAtTime(0.15, startTime + timeOffset);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + timeOffset + beepDuration - 0.02);
       
       osc.connect(gainNode);
       gainNode.connect(ctx.destination);
       
-      osc.start(startTime);
-      osc.stop(startTime + duration);
+      osc.start(startTime + timeOffset);
+      osc.stop(startTime + timeOffset + beepDuration);
+    };
+
+    if (type === 'Data Scraping') {
+      // Sound 1: Fast, urgent warning beeps (beep-beep-beep)
+      // Sharp 1050Hz sine wave beeps repeating every 0.25 seconds
+      for (let time = 0; time < duration; time += 0.25) {
+        playBeep(time, 0.12, 1050, 'sine');
+      }
+    } else if (type === 'Brute Force') {
+      // Sound 2: Heavy slow klaxon horn beeps (BEEP... BEEP...)
+      // Thick 380Hz square wave horn beeping every 0.8 seconds
+      for (let time = 0; time < duration; time += 0.8) {
+        playBeep(time, 0.4, 380, 'square');
+      }
     } else {
-      // Discordant digital anomaly invasion warble (detuned square waves with tremolo)
-      const osc1 = ctx.createOscillator();
-      const osc2 = ctx.createOscillator();
-      const gainNode = ctx.createGain();
-      
-      osc1.type = 'square';
-      osc2.type = 'square';
-      
-      osc1.detune.setValueAtTime(-12, startTime);
-      osc2.detune.setValueAtTime(12, startTime);
-      
-      // Fast alternating frequency pitch
-      for (let time = 0; time < duration; time += 0.2) {
-        const freq = (Math.floor(time * 5) % 2 === 0) ? 880 : 680;
-        osc1.frequency.setValueAtTime(freq, startTime + time);
-        osc2.frequency.setValueAtTime(freq + 6, startTime + time);
+      // Sound 3: Rapid electronic alarm buzzer (BUZZ-BUZZ-BUZZ)
+      // Raspy 180Hz sawtooth wave buzzes repeating every 0.18 seconds
+      for (let time = 0; time < duration; time += 0.18) {
+        playBeep(time, 0.08, 180, 'sawtooth');
       }
-      
-      // Tremolo gain oscillation
-      gainNode.gain.setValueAtTime(0.08, startTime);
-      for (let time = 0.2; time < duration; time += 0.4) {
-        gainNode.gain.linearRampToValueAtTime(0.01, startTime + time);
-        gainNode.gain.linearRampToValueAtTime(0.12, startTime + time + 0.2);
-      }
-      gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-      
-      osc1.connect(gainNode);
-      osc2.connect(gainNode);
-      gainNode.connect(ctx.destination);
-      
-      osc1.start(startTime);
-      osc2.start(startTime);
-      
-      osc1.stop(startTime + duration);
-      osc2.stop(startTime + duration);
     }
   } catch (e) {
     console.warn('AudioContext warning sound failed to play:', e);
