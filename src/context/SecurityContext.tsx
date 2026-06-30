@@ -77,11 +77,16 @@ const playThreatAlarm = (type: ThreatType) => {
       for (let time = 0; time < duration; time += 0.8) {
         playBeep(time, 0.4, 380, 'square');
       }
-    } else {
+    } else if (type === 'Suspicious API') {
       // Sound 3: Rapid electronic alarm buzzer (BUZZ-BUZZ-BUZZ)
       // Raspy 180Hz sawtooth wave buzzes repeating every 0.18 seconds
       for (let time = 0; time < duration; time += 0.18) {
         playBeep(time, 0.08, 180, 'sawtooth');
+      }
+    } else {
+      // Fallback warning sound repeat (sine beep)
+      for (let time = 0; time < duration; time += 0.4) {
+        playBeep(time, 0.2, 880, 'sine');
       }
     }
   } catch (e) {
@@ -433,6 +438,23 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Run the attack simulator pipeline
   const startAttack = (type: ThreatType) => {
     if (activeAttack) return; // already running
+
+    // Pre-unlock audio context synchronously within user click gesture
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioCtx) {
+        const tempCtx = new AudioCtx();
+        const osc = tempCtx.createOscillator();
+        const gainNode = tempCtx.createGain();
+        gainNode.gain.value = 0.0001; // virtually silent
+        osc.connect(gainNode);
+        gainNode.connect(tempCtx.destination);
+        osc.start(0);
+        osc.stop(0.01);
+      }
+    } catch (e) {
+      console.warn('Audio pre-unlock warning:', e);
+    }
 
     // Reset mitigation state
     setMitigationStatus({
